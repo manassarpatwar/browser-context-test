@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Browser context test</title>
-  <script src="app.js"></script>
+  <script src="app.js?v=history-1"></script>
   <style>
     * { box-sizing: border-box; }
     body { margin: 24px auto; padding: 0 18px; max-width: 760px; font: 16px/1.5 system-ui,sans-serif; color: #182333; }
@@ -20,6 +20,9 @@
 <body>
   <h1>Browser context test</h1>
   <p id="context"></p>
+  <h2>History length</h2>
+  <p id="history">Collecting…</p>
+  <p>Includes the current entry: a fresh tab normally starts at 1. A larger count does not tell us whether a merchant page is in the history. History is recorded separately from the dimension hash.</p>
   <p>Wait three seconds. Copy a comparison link in CCT, then open that link in external Chrome. The baseline travels in the URL fragment, so shared storage is not required.</p>
   <p id="status" role="status">Collecting samples…</p>
   <p id="comparison"></p>

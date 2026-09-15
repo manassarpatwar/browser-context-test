@@ -25,7 +25,7 @@ function inputs() {
 }
 
 async function capture(event) {
-  const sample = { event, ms: Math.round(performance.now()), inputs: inputs(), hash: null };
+  const sample = { event, ms: Math.round(performance.now()), historyLength: history.length, inputs: inputs(), hash: null };
   samples.push(sample);
   try {
     const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(sample.inputs)));
@@ -41,6 +41,8 @@ function report() {
   return {
     context: self === top ? 'Top-level page' : 'IFRAME',
     referrer: document.referrer,
+    initialHistoryLength: samples[0]?.historyLength ?? null,
+    currentHistoryLength: history.length,
     baseline,
     settledHash: settled?.hash ?? null,
     matchesBaseline: baseline && settled?.hash ? baseline === settled.hash : null,
@@ -54,6 +56,7 @@ function render() {
   document.getElementById('context').textContent = self === top
     ? 'Top-level page ✓' : 'IFRAME — open this URL directly for a top-level measurement.';
   output.textContent = JSON.stringify(report(), null, 2);
+  document.getElementById('history').textContent = `Initial: ${samples[0]?.historyLength} · Current: ${history.length} · Three-second: ${settled?.historyLength ?? 'waiting'}`;
   if (settled) {
     document.getElementById('hash').textContent = settled.hash ?? 'Hash failed';
     document.getElementById('link').disabled = !settled.hash;
@@ -94,4 +97,7 @@ window.addEventListener('load', () => {
   [100, 500, 1500, 3000].forEach(ms => setTimeout(() => capture(`Load + ${ms}ms`), ms));
 });
 window.addEventListener('resize', () => capture('Window resize'));
+window.addEventListener('pageshow', () => capture('Page show'));
+window.addEventListener('popstate', () => capture('History traversal'));
+window.addEventListener('hashchange', () => capture('Fragment change'));
 window.visualViewport?.addEventListener('resize', () => capture('Visual viewport resize'));
