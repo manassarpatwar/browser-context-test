@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Test merchant</title>
+</head>
+<body>
+  <h1>Test merchant</h1>
+  <p id="history"></p>
+  <p><label>Target URL <input id="target" type="url" size="45"></label></p>
+  <p><label>Open in
+    <select id="mode">
+      <option value="redirect">Same tab</option>
+      <option value="popup">New tab / window</option>
+      <option value="iframe">Iframe</option>
+    </select>
+  </label></p>
+  <button id="continue">Continue</button>
+  <p id="status" role="status"></p>
+  <iframe id="frame" title="Browser test" width="350" height="500" hidden></iframe>
+  <script>
+    const initialHistory = history.length;
+    const target = document.getElementById('target');
+    target.value = new URL('./index.html', location.href).href;
+    function showHistory() {
+      document.getElementById('history').textContent =
+        'History length: ' + history.length + ' (initial: ' + initialHistory + ')';
+    }
+    showHistory();
+    window.addEventListener('pageshow', showHistory);
+    document.getElementById('continue').onclick = () => {
+      const status = document.getElementById('status');
+      let url;
+      try {
+        url = new URL(target.value);
+        if (!['http:', 'https:'].includes(url.protocol)) throw new Error();
+      } catch {
+        status.textContent = 'Enter an HTTP or HTTPS URL.';
+        return;
+      }
+      showHistory();
+      status.textContent = 'History before navigation: ' + history.length;
+      const mode = document.getElementById('mode').value;
+      if (mode === 'redirect') {
+        location.assign(url.href);
+      } else if (mode === 'popup') {
+        const popup = window.open(url.href, '_blank');
+        if (!popup) status.textContent = 'Popup blocked. Allow popups and retry.';
+      } else {
+        const frame = document.getElementById('frame');
+        frame.hidden = false;
+        frame.src = url.href;
+      }
+    };
+  </script>
+</body>
+</html>
