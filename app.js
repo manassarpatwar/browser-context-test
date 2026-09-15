@@ -2,10 +2,14 @@
 const samples = [];
 let settled = null;
 let baseline = null;
+function readBaseline() {
 try {
   baseline = new URLSearchParams(location.hash.slice(1)).get('baseline');
   if (baseline && !/^[a-f0-9]{64}$/.test(baseline)) baseline = null;
 } catch { /* An invalid fragment does not prevent sampling. */ }
+}
+readBaseline();
+window.addEventListener('hashchange', () => { readBaseline(); render(); });
 
 function inputs() {
   const v = window.visualViewport;
